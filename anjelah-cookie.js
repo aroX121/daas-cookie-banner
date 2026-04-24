@@ -115,27 +115,3 @@ if (userChoice === 'granted') {
       })
       .catch(error => { console.error('Geo API failed', error); showBanner(); });
 }
-
-
-
-
-<meta name="google-site-verification" content="oxfeq1o80nO56XkxKOzTSc4eU2XqS5GDjD-L3l-1WFA" />
-
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag() { dataLayer.push(arguments); }
-gtag("consent", "default", {
-  ad_storage: "denied", ad_user_data: "denied",
-  ad_personalization: "denied", analytics_storage: "denied"
-});
-</script>
-
-<script>
-(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MRPR2V2M'); 
-</script>
-
-<script src="https://cdn.jsdelivr.net/gh/aroX121/daas-cookie-banner@main/anjelah-cookie.js" defer></script>
