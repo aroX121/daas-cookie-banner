@@ -1,0 +1,156 @@
+// ==========================================
+// ANJELAH SITE TRACKING ENGINE
+// ==========================================
+
+// 1. RETARGET IQ LOADER (Anjelah Specific Pixel)
+window.loadRetargetIQ = function() {
+    if (window.retargetIQLoaded) return;
+    (function(s, p, i, c, e) {
+        s[e] = s[e] || function() { (s[e].a = s[e].a || []).push(arguments); };
+        s[e].l = 1 * new Date();
+        var t = new Date().getTime();
+        var k = c.createElement("script"), a = c.getElementsByTagName("script")[0];
+        k.async = 1, k.src = p + "?request_id=" + i + "&t=" + t, a.parentNode.insertBefore(k, a);
+        s.pixelClientId = i;
+    })(window, "https://app.retargetiq.com/script", "anjelah-johnson-reyes", document, "script");
+    window.retargetIQLoaded = true;
+};
+
+// 2. CORE TRACKING FUNCTIONS
+function enableTracking() {
+    gtag("consent", "update", { ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted", analytics_storage: "granted" });
+    window.loadRetargetIQ();
+    window.dataLayer.push({ 'event': 'consent_granted' });
+}
+
+function acceptCookies() {
+    enableTracking(); 
+    localStorage.setItem('daas_cookie_choice', 'granted');
+    hideBanner();
+}
+
+function rejectCookies() {
+    gtag("consent", "update", { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied", analytics_storage: "denied" });
+    localStorage.setItem('daas_cookie_choice', 'denied');
+    hideBanner();
+}
+
+// 3. CUSTOM BANNER GENERATOR (Hardcoded Design for Anjelah)
+function showBanner() {
+    function injectBanner() {
+        if (document.getElementById('daas-cookie-banner')) return;
+
+        var config = {
+            bgColor: "#cbd858", 
+            textColor: "#000000",
+            acceptBgColor: "#000000", 
+            acceptTextColor: "#ffffff",
+            rejectBgColor: "#ffffff", 
+            rejectTextColor: "#000000",
+            privacyLink: "/privacy-policy"
+        };
+
+        var style = document.createElement('style');
+        style.innerHTML = `
+            #daas-cookie-banner {
+                position: fixed; bottom: 30px; left: 30px; width: 380px; max-width: 90%;
+                background-color: ${config.bgColor}; color: ${config.textColor};
+                padding: 24px; z-index: 2147483647; font-family: Arial, sans-serif;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15); box-sizing: border-box; border-radius: 8px;
+            }
+            #daas-cookie-banner p { margin: 0 0 20px 0; font-size: 14px; line-height: 1.5; }
+            #daas-cookie-banner a { color: ${config.textColor}; text-decoration: underline; font-weight: bold; }
+            .daas-cookie-buttons { display: flex; gap: 12px; }
+            .daas-cookie-buttons button { 
+                flex: 1; padding: 12px 0; font-size: 14px; cursor: pointer; 
+                font-family: inherit; font-weight: bold; border-radius: 4px; transition: opacity 0.2s;
+            }
+            .daas-cookie-buttons button:hover { opacity: 0.8; }
+            #daas-accept { background-color: ${config.acceptBgColor}; color: ${config.acceptTextColor}; border: none; }
+            #daas-reject { background-color: ${config.rejectBgColor}; color: ${config.rejectTextColor}; border: 1px solid ${config.textColor}; }
+            @media (max-width: 600px) {
+                #daas-cookie-banner { bottom: 0; left: 0; width: 100%; max-width: 100%; padding: 20px; border-radius: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        var banner = document.createElement('div');
+        banner.id = 'daas-cookie-banner';
+        banner.innerHTML = `
+            <p>We use cookies to improve your experience. Accept all or reject non-essential tracking. <a href="${config.privacyLink}">Learn more</a></p>
+            <div class="daas-cookie-buttons">
+                <button id="daas-accept">Accept all</button>
+                <button id="daas-reject">Reject</button>
+            </div>
+        `;
+        document.body.appendChild(banner);
+        
+        document.getElementById('daas-accept').onclick = acceptCookies;
+        document.getElementById('daas-reject').onclick = rejectCookies;
+    }
+    
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', injectBanner); } 
+    else { injectBanner(); }
+}
+
+function hideBanner() {
+    var banner = document.getElementById('daas-cookie-banner');
+    if (banner) banner.style.display = 'none';
+}
+
+// 4. GEO-LOGIC ENGINE (Updated with State-Level Targeting)
+var userChoice = localStorage.getItem('daas_cookie_choice');
+if (userChoice === 'granted') {
+    enableTracking(); 
+} else if (userChoice === 'denied') {
+    // Stays blocked
+} else {
+    // Upgraded to geo.json to pull state/region data
+    fetch('https://get.geojs.io/v1/ip/geo.json')
+      .then(response => response.json())
+      .then(data => {
+        const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'CH', 'NO', 'IS'];
+        const strictUSStates = ['California', 'Virginia', 'Colorado', 'Connecticut', 'Utah'];
+        
+        // Strict EU/UK Check
+        if (strictCountries.includes(data.country_code)) { 
+            showBanner(); 
+        } 
+        // Strict US State Check
+        else if (data.country_code === 'US' && strictUSStates.includes(data.region)) {
+            showBanner();
+        }
+        // Relaxed Zone (Auto-Fire + Opt-Out Banner)
+        else { 
+            enableTracking(); 
+            showBanner(); 
+        }
+      })
+      .catch(error => { console.error('Geo API failed', error); showBanner(); });
+}
+
+
+
+
+/*
+<meta name="google-site-verification" content="oxfeq1o80nO56XkxKOzTSc4eU2XqS5GDjD-L3l-1WFA" />
+
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag() { dataLayer.push(arguments); }
+gtag("consent", "default", {
+  ad_storage: "denied", ad_user_data: "denied",
+  ad_personalization: "denied", analytics_storage: "denied"
+});
+</script>
+
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MRPR2V2M'); 
+</script>
+
+<script src="https://cdn.jsdelivr.net/gh/aroX121/daas-cookie-banner@main/anjelah-cookie.js" defer></script>
+*/
