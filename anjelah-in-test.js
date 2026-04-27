@@ -54,23 +54,23 @@ function showBanner() {
         var style = document.createElement('style');
         style.innerHTML = `
             #daas-cookie-banner {
-                position: fixed; bottom: 30px; left: 30px; width: 380px; max-width: 90%;
+                position: fixed; bottom: 10px; left: 10px; width: 280px; max-width: calc(100% - 20px);
                 background-color: ${config.bgColor}; color: ${config.textColor};
-                padding: 24px; z-index: 2147483647; font-family: Arial, sans-serif;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.15); box-sizing: border-box; border-radius: 8px;
+                padding: 10px; z-index: 2147483647; font-family: Arial, sans-serif;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.15); box-sizing: border-box; border-radius: 6px;
             }
-            #daas-cookie-banner p { margin: 0 0 20px 0; font-size: 14px; line-height: 1.5; }
+            #daas-cookie-banner p { margin: 0 0 8px 0; font-size: 11px; line-height: 1.2; }
             #daas-cookie-banner a { color: ${config.textColor}; text-decoration: underline; font-weight: bold; }
-            .daas-cookie-buttons { display: flex; gap: 12px; }
+            .daas-cookie-buttons { display: flex; gap: 6px; }
             .daas-cookie-buttons button { 
-                flex: 1; padding: 12px 0; font-size: 14px; cursor: pointer; 
+                flex: 1; padding: 6px 0; font-size: 11px; cursor: pointer; 
                 font-family: inherit; font-weight: bold; border-radius: 4px; transition: opacity 0.2s;
             }
             .daas-cookie-buttons button:hover { opacity: 0.8; }
             #daas-accept { background-color: ${config.acceptBgColor}; color: ${config.acceptTextColor}; border: none; }
             #daas-reject { background-color: ${config.rejectBgColor}; color: ${config.rejectTextColor}; border: 1px solid ${config.textColor}; }
             @media (max-width: 600px) {
-                #daas-cookie-banner { bottom: 0; left: 0; width: 100%; max-width: 100%; padding: 20px; border-radius: 0; }
+                #daas-cookie-banner { bottom: 10px; left: 10px; width: calc(100% - 20px); max-width: calc(100% - 20px); padding: 8px; border-radius: 6px; }
             }
         `;
         document.head.appendChild(style);
