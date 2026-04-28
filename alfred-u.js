@@ -18,9 +18,15 @@ function enableTracking() {
     // 1. Wakes up Google Tags
     gtag("consent", "update", { ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted", analytics_storage: "granted" });
 
-    // 2. Wakes up the Rogue Meta Pixel
+    // 2. Wakes up the Rogue Meta Pixel AND re-fires the lost PageView
     if (typeof fbq === 'function') {
         fbq('consent', 'grant');
+
+        // Manually push the PageView that was blocked by the 'revoke' command
+        if (!window.metaPageViewFired) {
+            fbq('track', 'PageView');
+            window.metaPageViewFired = true; // Safety flag to prevent double-firing
+        }
     }
 
     // 3. Wakes up GTM
@@ -88,11 +94,11 @@ if (userChoice === 'granted') {
 } else if (userChoice === 'denied') {
     // Stays blocked
 } else {
-    // Upgraded to geo.json for state-level targeting
+    // Using geo.json to accurately read the state/region
     fetch('https://get.geojs.io/v1/ip/geo.json')
         .then(response => response.json())
         .then(data => {
-            const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'NO', 'IS', 'LI', 'CH'];
+            const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'CH', 'NO', 'IS'];
 
             const strictUSStates = ['California'];
             const strictINStates = ['Assam'];
@@ -104,10 +110,10 @@ if (userChoice === 'granted') {
                 // US Strict State (California): Show banner, DO NOT fire tags
                 showBanner();
             } else if (data.country_code === 'IN' && strictINStates.includes(data.region)) {
-                // India Strict State (Assam for QA testing): Show banner, DO NOT fire tags
+                // India Strict State (Assam): Show banner, DO NOT fire tags
                 showBanner();
             } else {
-                // Rest of World: Fire tags instantly, show opt-out banner
+                // Rest of World (including Virginia): Fire tags instantly, show opt-out banner
                 enableTracking();
                 showBanner();
             }
