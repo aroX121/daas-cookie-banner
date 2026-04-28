@@ -1,41 +1,37 @@
 // ==========================================
-//  UP HIGH LLC SITE TRACKING ENGINE
+// DAAS - UNIVERSAL TRACKING ENGINE 
+// (For Meta, GA4, TikTok - No Retarget IQ)
 // ==========================================
 
-// 1. RETARGET IQ LOADER (Up High LLC Specific Pixel)
-window.loadRetargetIQ = function () {
-    if (window.retargetIQLoaded) return;
-    (function (s, p, i, c, e) {
-        s[e] = s[e] || function () { (s[e].a = s[e].a || []).push(arguments); };
-        s[e].l = 1 * new Date();
-        var t = new Date().getTime();
-        var k = c.createElement("script"), a = c.getElementsByTagName("script")[0];
-        k.async = 1, k.src = p + "?request_id=" + i + "&t=" + t, a.parentNode.insertBefore(k, a);
-        s.pixelClientId = i;
-    })(window, "https://app.retargetiq.com/script", "up-high", document, "script");
-    window.retargetIQLoaded = true;
-};
+// 1. COOKIE HANDLERS (Forces literal cookies so QA testing works properly)
+function setCookieChoice(choice) {
+    document.cookie = "daas_universal_consent=" + choice + "; max-age=31536000; path=/";
+}
+
+function getCookieChoice() {
+    var match = document.cookie.match(new RegExp('(^| )daas_universal_consent=([^;]+)'));
+    return match ? match[2] : null;
+}
 
 // 2. CORE TRACKING FUNCTIONS
 function enableTracking() {
     gtag("consent", "update", { ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted", analytics_storage: "granted" });
-    window.loadRetargetIQ();
     window.dataLayer.push({ 'event': 'consent_granted' });
 }
 
 function acceptCookies() {
     enableTracking();
-    localStorage.setItem('daas_cookie_choice', 'granted');
+    setCookieChoice('granted');
     hideBanner();
 }
 
 function rejectCookies() {
     gtag("consent", "update", { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied", analytics_storage: "denied" });
-    localStorage.setItem('daas_cookie_choice', 'denied');
+    setCookieChoice('denied');
     hideBanner();
 }
 
-// 3. CUSTOM BANNER GENERATOR
+// 3. CUSTOM BANNER GENERATOR (Universal Dark Theme Design)
 function showBanner() {
     function injectBanner() {
         if (document.getElementById('daas-cookie-banner')) return;
@@ -99,18 +95,26 @@ function hideBanner() {
 }
 
 // 4. GEO-LOGIC ENGINE
-var userChoice = localStorage.getItem('daas_cookie_choice');
+var userChoice = getCookieChoice();
 if (userChoice === 'granted') {
     enableTracking();
 } else if (userChoice === 'denied') {
     // Stays blocked
 } else {
-    fetch('https://get.geojs.io/v1/ip/country.json')
+    fetch('https://get.geojs.io/v1/ip/geo.json')
         .then(response => response.json())
         .then(data => {
-            const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'IN', 'SE'];
-            if (!strictCountries.includes(data.country)) { enableTracking(); showBanner(); }
-            else { showBanner(); }
+            const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'CH', 'NO', 'IS'];
+            const strictUSStates = ['California', 'Virginia', 'Colorado', 'Connecticut', 'Utah'];
+
+            if (strictCountries.includes(data.country_code)) {
+                showBanner();
+            } else if (data.country_code === 'US' && strictUSStates.includes(data.region)) {
+                showBanner();
+            } else {
+                enableTracking();
+                showBanner();
+            }
         })
         .catch(error => { console.error('Geo API failed', error); showBanner(); });
 }
