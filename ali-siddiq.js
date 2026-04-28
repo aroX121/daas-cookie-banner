@@ -105,12 +105,24 @@ if (userChoice === 'granted') {
 } else if (userChoice === 'denied') {
     // Stays blocked
 } else {
-    fetch('https://get.geojs.io/v1/ip/country.json')
+    fetch('https://get.geojs.io/v1/ip/geo.json')
         .then(response => response.json())
         .then(data => {
-            const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'IN', 'SE'];
-            if (!strictCountries.includes(data.country)) { enableTracking(); showBanner(); }
-            else { showBanner(); }
+            const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'NO', 'IS', 'LI', 'CH'];
+
+            const strictUSStates = ['California'];
+            const strictINStates = ['Assam'];
+
+            if (strictCountries.includes(data.country_code)) {
+                showBanner();
+            } else if (data.country_code === 'US' && strictUSStates.includes(data.region)) {
+                showBanner();
+            } else if (data.country_code === 'IN' && strictINStates.includes(data.region)) {
+                showBanner();
+            } else {
+                enableTracking();
+                showBanner();
+            }
         })
         .catch(error => { console.error('Geo API failed', error); showBanner(); });
 }
