@@ -1,15 +1,15 @@
 // ==========================================
-// CLIENT: DAAS - CUSTOM SITE TRACKING ENGINE
+// CLIENT: DAAS - ALFRED ROBLES TRACKING ENGINE
 // (For GTM + Rogue Meta Pixel)
 // ==========================================
 
 // 1. LITERAL COOKIE HANDLERS
 function setCookieChoice(choice) {
-    document.cookie = "daas_site_consent=" + choice + "; max-age=31536000; path=/";
+    document.cookie = "daas_alfredrobles_consent=" + choice + "; max-age=31536000; path=/";
 }
 
 function getCookieChoice() {
-    var match = document.cookie.match(new RegExp('(^| )daas_site_consent=([^;]+)'));
+    var match = document.cookie.match(new RegExp('(^| )daas_alfredrobles_consent=([^;]+)'));
     return match ? match[2] : null;
 }
 
@@ -18,7 +18,7 @@ function enableTracking() {
     // 1. Wakes up Google Tags
     gtag("consent", "update", { ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted", analytics_storage: "granted" });
 
-    // 2. Wakes up the Rogue Meta Pixel (Unblocks it)
+    // 2. Wakes up the Rogue Meta Pixel
     if (typeof fbq === 'function') {
         fbq('consent', 'grant');
     }
@@ -81,20 +81,30 @@ function hideBanner() {
     if (banner) banner.style.display = 'none';
 }
 
-// 4. GEO-LOGIC ENGINE (Countries Only)
+// 4. GEO-LOGIC ENGINE (Countries + Specific States)
 var userChoice = getCookieChoice();
 if (userChoice === 'granted') {
     enableTracking();
 } else if (userChoice === 'denied') {
     // Stays blocked
 } else {
+    // Upgraded to geo.json for state-level targeting
     fetch('https://get.geojs.io/v1/ip/geo.json')
         .then(response => response.json())
         .then(data => {
-            const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'CH', 'NO', 'IS'];
+            const strictCountries = ['GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'NO', 'IS', 'LI', 'CH'];
+
+            const strictUSStates = ['California'];
+            const strictINStates = ['Assam'];
 
             if (strictCountries.includes(data.country_code)) {
                 // EU/UK: Show banner, DO NOT fire tags
+                showBanner();
+            } else if (data.country_code === 'US' && strictUSStates.includes(data.region)) {
+                // US Strict State (California): Show banner, DO NOT fire tags
+                showBanner();
+            } else if (data.country_code === 'IN' && strictINStates.includes(data.region)) {
+                // India Strict State (Assam for QA testing): Show banner, DO NOT fire tags
                 showBanner();
             } else {
                 // Rest of World: Fire tags instantly, show opt-out banner
