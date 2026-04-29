@@ -1,6 +1,6 @@
 // ==========================================
 // DAAS - UNIVERSAL TRACKING ENGINE 
-// (For GA4, Meta, TikTok inside GTM)
+// (Pure GTM - No hardcoded pixels)
 // ==========================================
 
 // 1. LITERAL COOKIE HANDLERS
@@ -18,12 +18,7 @@ function enableTracking() {
     // 1. Wakes up Google Tags
     gtag("consent", "update", { ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted", analytics_storage: "granted" });
 
-    // 2. Wakes up Meta (Failsafe in case a client hardcodes it outside GTM)
-    if (typeof fbq === 'function') {
-        fbq('consent', 'grant');
-    }
-
-    // 3. Wakes up GTM (This fires Meta, TikTok, and GA4 inside the container)
+    // 2. Wakes up GTM (Fires Meta, TikTok, and GA4 inside the container)
     window.dataLayer.push({ 'event': 'consent_granted' });
 }
 
