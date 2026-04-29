@@ -1,40 +1,30 @@
 // ==========================================
-// DAAS - UNIVERSAL TRACKING ENGINE 
-// (Pure GTM - No hardcoded pixels)
+// UNIVERSAL TRACKING ENGINE 
+// (Pure GTM - No Retarget IQ, Uses LocalStorage)
 // ==========================================
 
-// 1. LITERAL COOKIE HANDLERS
-function setCookieChoice(choice) {
-    document.cookie = "daas_universal_consent=" + choice + "; max-age=31536000; path=/";
-}
-
-function getCookieChoice() {
-    var match = document.cookie.match(new RegExp('(^| )daas_universal_consent=([^;]+)'));
-    return match ? match[2] : null;
-}
-
-// 2. CORE TRACKING FUNCTIONS
+// 1. CORE TRACKING FUNCTIONS
 function enableTracking() {
     // 1. Wakes up Google Tags
     gtag("consent", "update", { ad_storage: "granted", ad_user_data: "granted", ad_personalization: "granted", analytics_storage: "granted" });
 
-    // 2. Wakes up GTM (Fires Meta, TikTok, and GA4 inside the container)
+    // 2. Wakes up GTM (This fires Meta, TikTok, and GA4 safely inside the container)
     window.dataLayer.push({ 'event': 'consent_granted' });
 }
 
 function acceptCookies() {
     enableTracking();
-    setCookieChoice('granted');
+    localStorage.setItem('daas_universal_consent', 'granted');
     hideBanner();
 }
 
 function rejectCookies() {
     gtag("consent", "update", { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied", analytics_storage: "denied" });
-    setCookieChoice('denied');
+    localStorage.setItem('daas_universal_consent', 'denied');
     hideBanner();
 }
 
-// 3. CUSTOM BANNER GENERATOR (Compact Dark Theme)
+// 2. CUSTOM BANNER GENERATOR (Compact Dark Theme)
 function showBanner() {
     function injectBanner() {
         if (document.getElementById('daas-cookie-banner')) return;
@@ -76,8 +66,8 @@ function hideBanner() {
     if (banner) banner.style.display = 'none';
 }
 
-// 4. GEO-LOGIC ENGINE (Countries + Specific States)
-var userChoice = getCookieChoice();
+// 3. GEO-LOGIC ENGINE (Countries + Specific States)
+var userChoice = localStorage.getItem('daas_universal_consent');
 if (userChoice === 'granted') {
     enableTracking();
 } else if (userChoice === 'denied') {
