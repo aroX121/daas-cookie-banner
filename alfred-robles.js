@@ -67,7 +67,7 @@ function showBanner() {
 
         var banner = document.createElement('div');
         banner.id = 'daas-cookie-banner';
-        banner.innerHTML = `<p>We use cookies to improve your experience. Accept all or reject non-essential tracking. <a href="${config.privacyLink}">Learn more</a></p><div class="daas-cookie-buttons"><button id="daas-accept">Accept all</button><button id="daas-reject">Reject</button></div>`;
+        banner.innerHTML = `<p>We use cookies to improve your experience. Accept all or reject non-essential tracking. <a href="${config.privacyLink}">Read our Privacy Policy</a></p><div class="daas-cookie-buttons"><button id="daas-accept">Accept all</button><button id="daas-reject">Reject</button></div>`;
         document.body.appendChild(banner);
 
         document.getElementById('daas-accept').onclick = acceptCookies;
